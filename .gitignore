@@ -2,6 +2,6 @@ node_modules/
 .env
 
 # SQLite Database files
-*.db
-*.db-shm
-*.db-wal
+careerai.db
+careerai.db-shm
+careerai.db-wal
