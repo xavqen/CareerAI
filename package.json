@@ -1,0 +1,28 @@
+{
+  "name": "my-career-guide-ai",
+  "version": "1.0.0",
+  "description": "An AI-powered career coach SaaS application",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.1",
+    "@libsql/client": "^0.17.4",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "google-auth-library": "^9.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.11",
+    "openai": "^4.28.0",
+    "razorpay": "^2.9.2",
+    "zod": "^3.22.4"
+  },
+  "author": "",
+  "license": "ISC"
+}
