@@ -1,0 +1,7 @@
+node_modules/
+.env
+
+# SQLite Database files
+# careerai.db
+# careerai.db-shm
+# careerai.db-wal
