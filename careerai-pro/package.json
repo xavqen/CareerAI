@@ -1,0 +1,30 @@
+{
+  "name": "careerai-pro",
+  "version": "2.0.0",
+  "description": "Production-Grade AI Career Coach SaaS",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod",
+    "lint": "eslint api/ lib/ middleware/",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "bcryptjs": "^2.4.3",
+    "google-auth-library": "^9.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "@google/generative-ai": "^0.21.0",
+    "openai": "^4.28.0",
+    "razorpay": "^2.9.2",
+    "nodemailer": "^6.9.8",
+    "uuid": "^9.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "vercel": "^34.0.0",
+    "vitest": "^1.2.0",
+    "eslint": "^8.56.0"
+  }
+}

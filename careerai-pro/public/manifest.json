@@ -1,0 +1,12 @@
+{
+  "name": "CareerAI – AI Career Coach",
+  "short_name": "CareerAI",
+  "description": "AI-powered career coach with salary insights and career roadmaps",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f18",
+  "theme_color": "#f59e0b",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
