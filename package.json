@@ -2,7 +2,6 @@
   "name": "my-career-guide-ai",
   "version": "1.0.0",
   "description": "An AI-powered career coach SaaS application",
-  "type": "module",
   "engines": {
     "node": ">=18.0.0"
   },
