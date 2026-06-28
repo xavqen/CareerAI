@@ -4,21 +4,28 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const SYSTEM_PROMPT = `You are My Career Guide AI. Follow these exact rules:
-1. Use concise, scannable bullet points.
-2. Include text-based flowcharts using arrows (->) and emojis for career/skill paths.
-3. ALWAYS provide estimated salary ranges (in ₹ or $) and minimum study/training time to land the job.
-4. Include 1 short interesting fact related to the field.
-5. End your response with EXACTLY ONE engaging follow-up question.
-Format entirely in Markdown.`;
+const SYSTEM_PROMPT = `You are My Career Guide AI. Your goal is to provide exceptional, professional career coaching. Follow these structural layout rules exactly:
+1. Break down complex career trajectories into clear headings with extensive line spacing between conceptual steps.
+2. Structure the career roadmap as an elegant, vertical visual flowchart using clear unicode arrows (➔, ⬇) and structural bullet emojis.
+3. Your responses must always include these core fields:
+   - 🗺️ THE DEFINITIVE CAREER PATHWAY (Rendered as a step-by-step vertical text flowchart)
+   - 📈 SECTOR DEMAND & TRAINING HORIZON (Time commitment needed)
+   - 💰 REMUNERATION BRACKETS (Clear ₹ or $ salary structures)
+   - 💡 INSIDER INTEL (1 short, high-value strategy fact)
+4. Wrap sequential roadmap stages inside distinctive blockquotes or clear structural highlights.
+5. Conclude your entire message with EXACTLY ONE highly specific, thought-provoking question to steer the next stage of their discovery.`;
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  const { userId, role } = req.user;
-  const { conversationId, message, model = 'gemini-2.5-flash' } = req.body;
+  const { userId } = req.user;
+  const { conversationId, message } = req.body;
+
+  // Initialize standard text-streaming headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
 
   try {
-    // Usage Check
     const today = new Date().toISOString().split('T')[0];
     const usageRes = await db.execute({ sql: 'SELECT count FROM daily_usage WHERE user_id = ? AND date = ?', args: [userId, today] });
     let count = usageRes.rows[0]?.count || 0;
@@ -28,29 +35,33 @@ async function handler(req, res) {
     const isPremium = user.role === 'premium' && new Date(user.plan_expiry) > new Date();
 
     if (!isPremium && count >= 20) {
-      return res.status(403).json({ error: 'Daily limit reached. Please upgrade to premium.' });
+      res.write(`data: ${JSON.stringify({ error: 'Daily message limit reached. Upgrade to Premium for continuous streaming access.' })}\n\n`);
+      return res.end();
     }
 
-    // Save User Message
-    const msgId = crypto.randomUUID();
+    // Save user prompt history
     await db.execute({
       sql: 'INSERT INTO messages (id, conversation_id, role, content) VALUES (?, ?, ?, ?)',
-      args: [msgId, conversationId, 'user', message]
+      args: [crypto.randomUUID(), conversationId, 'user', message]
     });
 
-    // Generate AI Response
-    const aiModel = genAI.getGenerativeModel({ model, systemInstruction: SYSTEM_PROMPT });
-    const result = await aiModel.generateContent(message);
-    const aiText = result.response.text();
+    // Enforce high-performance gemini-2.5-flash for both tiers
+    const aiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', systemInstruction: SYSTEM_PROMPT });
+    const result = await aiModel.generateContentStream(message);
 
-    // Save AI Message
-    const aiMsgId = crypto.randomUUID();
+    let completeAIOutput = "";
+    for await (const chunk of result.stream) {
+      const textChunk = chunk.text();
+      completeAIOutput += textChunk;
+      res.write(`data: ${JSON.stringify({ text: textChunk })}\n\n`);
+    }
+
+    // Save final output back to database storage
     await db.execute({
       sql: 'INSERT INTO messages (id, conversation_id, role, content) VALUES (?, ?, ?, ?)',
-      args: [aiMsgId, conversationId, 'assistant', aiText]
+      args: [crypto.randomUUID(), conversationId, 'assistant', completeAIOutput]
     });
 
-    // Update Usage
     if (!isPremium) {
       await db.execute({
         sql: `INSERT INTO daily_usage (user_id, date, count) VALUES (?, ?, 1)
@@ -59,9 +70,11 @@ async function handler(req, res) {
       });
     }
 
-    res.status(200).json({ id: aiMsgId, content: aiText });
+    res.write('data: [DONE]\n\n');
+    res.end();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 }
 

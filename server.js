@@ -11,6 +11,7 @@ import conversationsHandler from './api/conversations/index.js';
 import chatHandler from './api/chat.js';
 import premiumOrderHandler from './api/premium/order.js';
 import { initDB } from './lib/db.js';
+import messagesHandler from './api/messages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,7 @@ app.all('/api/auth/google', googleHandler); // <-- Mounted this
 app.all('/api/conversations', conversationsHandler);
 app.all('/api/chat', chatHandler);
 app.all('/api/premium/order', premiumOrderHandler);
+app.all('/api/messages', messagesHandler);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
