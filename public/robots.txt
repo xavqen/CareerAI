@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://my-career-guider-ai.vercel.app/sitemap.xml
+Sitemap: https://future-guide-ai.vercel.app/sitemap.xml
