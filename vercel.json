@@ -5,6 +5,18 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/robots.txt",
+      "destination": "/public/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/public/sitemap.xml"
+    },
+    {
+      "source": "/google(.*).html",
+      "destination": "/public/google$1.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/public/index.html"
     }
